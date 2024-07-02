@@ -32,8 +32,11 @@ dependencies:
   fl_chart: ^0.68.0
   flutter:
     sdk: flutter
+  flutter_local_notifications: ^17.2.0
   flutter_map: ^7.0.1
+  image_picker: ^1.1.2
   rive: ^0.13.8
+  shared_preferences: ^2.2.3
   smooth_page_indicator: ^1.1.0
 
 dev_dependencies:

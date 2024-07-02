@@ -88,6 +88,10 @@ class DetailPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                'Weekly Power Outages',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               // Historical Power Outages Graph
               SizedBox(
                 height: 353,

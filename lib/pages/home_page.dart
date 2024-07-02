@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lightsout/pages/details.dart';
+import 'package:lightsout/pages/fault_report.dart'; // Import the reporting page
 import 'package:lightsout/utils/area_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:lightsout/pages/theme.dart';
@@ -50,11 +51,20 @@ class _HomePageState extends State<HomePage> {
   void _onTabChange(int newIndex) {
     setState(() {
       _currentTabIndex = newIndex;
-      _tabPageController.animateToPage(
-        newIndex,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+      if (newIndex == 1) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => FaultReportPage(),
+          ),
+        );
+      } else {
+        _tabPageController.animateToPage(
+          newIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     });
   }
 
