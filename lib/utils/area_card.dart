@@ -9,6 +9,8 @@ class MyArea extends StatefulWidget {
   final String feeder;
   final int stage;
   final Gradient gradient;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteToggle;
 
   const MyArea({
     Key? key,
@@ -17,6 +19,8 @@ class MyArea extends StatefulWidget {
     required this.feeder,
     required this.stage,
     required this.gradient,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
   }) : super(key: key);
 
   @override
@@ -115,6 +119,57 @@ class _MyAreaState extends State<MyArea> {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.area,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          InkWell(
+                            onTap: widget.onFavoriteToggle,
+                            borderRadius: BorderRadius.circular(999),
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.18),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                widget.isFavorite ? Icons.star_rounded : Icons.star_border_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Image.asset(
+                              'lib/icons/byo.png',
+                              height: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
                     children: [
                       Expanded(
                         child: Text(
@@ -251,6 +306,7 @@ class _MyAreaState extends State<MyArea> {
                   ),
                 ],
               ),
+            ),
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: SizedBox(
@@ -397,6 +453,12 @@ class _MyAreaState extends State<MyArea> {
     switch (stage) {
       case 1:
         return RiveAppTheme.success;
+      case 2:
+        return RiveAppTheme.warning;
+      case 3:
+        return RiveAppTheme.danger;
+      default:
+        return RiveAppTheme.textSecondary;
       case 2:
         return RiveAppTheme.warning;
       case 3:
