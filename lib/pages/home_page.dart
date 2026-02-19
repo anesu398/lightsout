@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:lightsout/navigation/custom_tab_bar.dart';
 import 'package:lightsout/pages/details.dart';
-import 'package:lightsout/pages/fault_report.dart'; // Import the reporting page
+import 'package:lightsout/pages/fault_report.dart';
+import 'package:lightsout/pages/theme.dart';
 import 'package:lightsout/utils/area_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:lightsout/pages/theme.dart';
-import 'package:lightsout/navigation/custom_tab_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -74,6 +74,21 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: RiveAppTheme.background,
       body: Stack(
         children: [
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    const Color(0xFFEAF3FF),
+                    RiveAppTheme.background,
+                    Colors.white,
+                  ],
+                ),
+              ),
+            ),
+          ),
           // Main content
           Scaffold(
             backgroundColor: Colors.transparent,
@@ -88,42 +103,46 @@ class _HomePageState extends State<HomePage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: const [
+                        const Row(
+                          children: [
                             Text(
                               'Lights',
                               style: TextStyle(
                                 fontSize: 28,
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.8,
+                                color: Color(0xFF1D1D1F),
                               ),
                             ),
-                            SizedBox(
-                                width:
-                                    5), // Adding some space between the two texts
+                            SizedBox(width: 6),
                             Text(
                               'Out',
-                              style: TextStyle(fontSize: 28),
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w400,
+                                letterSpacing: -0.8,
+                                color: Color(0xFF6E6E73),
+                              ),
                             ),
                           ],
                         ),
                         Row(
-                          children: const [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(Icons.add),
+                          children: [
+                            _IconContainer(
+                              icon: _isSidebarOpen ? Icons.close : Icons.menu,
+                              onTap: _toggleSidebar,
                             ),
-                            SizedBox(width: 10), // Adding space between icons
-                            GoogleUserIcon(),
+                            const SizedBox(width: 10),
+                            const GoogleUserIcon(),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 10),
 
                   // My Areas
                   Expanded(
-                    // Ensures the PageView takes all available space
                     child: PageView(
                       controller: _homePageController,
                       onPageChanged: (int page) {
@@ -136,18 +155,19 @@ class _HomePageState extends State<HomePage> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 25.0),
-                              child: const Text(
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 25.0),
+                              child: Text(
                                 'My Area(s)',
                                 style: TextStyle(
                                   fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
+                                  color: Color(0xFF1D1D1F),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: 14),
                             Expanded(
                               child: PageView(
                                 controller: _tabPageController,
@@ -162,31 +182,31 @@ class _HomePageState extends State<HomePage> {
                                       'Khumalo',
                                       'Ilanda Feeder',
                                       2,
-                                      LinearGradient(
+                                      const LinearGradient(
                                         colors: [
-                                          Color.fromARGB(255, 164, 137, 247),
-                                          Color(0xFF7850F0),
+                                          Color(0xFF99B8FF),
+                                          Color(0xFF4477ED),
                                         ],
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
-                                        stops: [0.5, 1.0],
+                                        stops: [0.3, 1.0],
                                       ),
                                       [1, 2, 3, 4, 5],
                                     ),
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
-                                      child: MyArea(
+                                      child: const MyArea(
                                         area: 'Khumalo',
                                         feeder: 'Ilanda Feeder',
                                         stage: 2,
                                         gradient: LinearGradient(
                                           colors: [
-                                            Color.fromARGB(151, 103, 146, 255),
-                                            Color(0xFF6792FF),
+                                            Color(0xFF99B8FF),
+                                            Color(0xFF4477ED),
                                           ],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          stops: [0.5, 1.0],
+                                          stops: [0.3, 1.0],
                                         ),
                                         powerOffTimes: [1, 2, 3, 4, 5],
                                       ),
@@ -197,31 +217,31 @@ class _HomePageState extends State<HomePage> {
                                       'Bulawayo PolyTechnic',
                                       'Park Road Feeder',
                                       1,
-                                      LinearGradient(
+                                      const LinearGradient(
                                         colors: [
-                                          Color.fromARGB(183, 73, 219, 92),
-                                          Colors.blue,
+                                          Color(0xFF8DE4B4),
+                                          Color(0xFF1C8ADB),
                                         ],
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
-                                        stops: [0.5, 1.0],
+                                        stops: [0.2, 1.0],
                                       ),
                                       [3, 4, 5, 6],
                                     ),
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
-                                      child: MyArea(
+                                      child: const MyArea(
                                         area: 'Bulawayo PolyTechnic',
                                         feeder: 'Park Road Feeder',
                                         stage: 1,
                                         gradient: LinearGradient(
                                           colors: [
-                                            Color.fromARGB(183, 73, 219, 92),
-                                            Colors.blue,
+                                            Color(0xFF8DE4B4),
+                                            Color(0xFF1C8ADB),
                                           ],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          stops: [0.5, 1.0],
+                                          stops: [0.2, 1.0],
                                         ),
                                         powerOffTimes: [3, 4, 5, 6],
                                       ),
@@ -232,31 +252,31 @@ class _HomePageState extends State<HomePage> {
                                       'Ascot',
                                       'Khumalo Feeder',
                                       3,
-                                      LinearGradient(
+                                      const LinearGradient(
                                         colors: [
-                                          Color.fromARGB(113, 185, 4, 13),
-                                          Colors.indigo,
+                                          Color(0xFFFB9A9F),
+                                          Color(0xFF3556C9),
                                         ],
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
-                                        stops: [0.5, 1.0],
+                                        stops: [0.1, 1.0],
                                       ),
                                       [8, 9, 10, 11, 14, 15],
                                     ),
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
-                                      child: MyArea(
+                                      child: const MyArea(
                                         area: 'Ascot',
                                         feeder: 'Khumalo Feeder',
                                         stage: 3,
                                         gradient: LinearGradient(
                                           colors: [
-                                            Color.fromARGB(113, 185, 4, 13),
-                                            Colors.indigo,
+                                            Color(0xFFFB9A9F),
+                                            Color(0xFF3556C9),
                                           ],
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
-                                          stops: [0.5, 1.0],
+                                          stops: [0.1, 1.0],
                                         ),
                                         powerOffTimes: [8, 9, 10, 11, 14, 15],
                                       ),
@@ -265,17 +285,17 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 25),
+                            const SizedBox(height: 20),
                             Align(
                               alignment: Alignment.center,
                               child: SmoothPageIndicator(
                                 controller: _tabPageController,
                                 count: 3,
-                                effect: ExpandingDotsEffect(
-                                  dotHeight: 8.0,
-                                  dotWidth: 8.0,
-                                  activeDotColor: Colors.grey[800]!,
-                                  dotColor: Colors.grey,
+                                effect: const ExpandingDotsEffect(
+                                  dotHeight: 7.0,
+                                  dotWidth: 7.0,
+                                  activeDotColor: Color(0xFF1D1D1F),
+                                  dotColor: Color(0xFFB8BEC8),
                                 ),
                               ),
                             ),
@@ -284,30 +304,36 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
                   // Nearby Areas with AnimatedSwitcher
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: const Text(
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 25.0),
+                        child: Text(
                           'Nearby Areas',
                           style: TextStyle(
                             fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                            color: Color(0xFF1D1D1F),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 14),
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 500),
                         transitionBuilder:
                             (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: child,
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: Tween<double>(begin: 0.98, end: 1)
+                                  .animate(animation),
+                              child: child,
+                            ),
                           );
                         },
                         child: Column(
@@ -347,32 +373,47 @@ class _HomePageState extends State<HomePage> {
           // Custom sidebar
           if (_isSidebarOpen)
             Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              color: Colors.white,
+              width: MediaQuery.of(context).size.width * 0.82,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.92),
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(28),
+                  bottomRight: Radius.circular(28),
+                ),
+                border: Border.all(color: const Color(0xFFE5E5EA)),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 50),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Text(
+                      'Menu',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   ListTile(
-                    leading: Icon(Icons.home),
-                    title: Text('Home'),
+                    leading: const Icon(Icons.home_rounded),
+                    title: const Text('Home'),
                     onTap: () {
-                      // Implement action
                       setState(() {
                         _isSidebarOpen = false;
-                        _homePageController.jumpToPage(0); // Jump to home page
+                        _homePageController.jumpToPage(0);
                       });
                     },
                   ),
                   ListTile(
-                    leading: Icon(Icons.settings),
-                    title: Text('Settings'),
+                    leading: const Icon(Icons.settings_rounded),
+                    title: const Text('Settings'),
                     onTap: () {
-                      // Implement action
                       setState(() {
                         _isSidebarOpen = false;
-                        _homePageController
-                            .jumpToPage(1); // Jump to settings page
                       });
                     },
                   ),
@@ -383,7 +424,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: CustomTabBar(
         onTabChange: _onTabChange,
-      ), // External custom bottom navigation bar
+      ),
     );
   }
 
@@ -416,52 +457,108 @@ class _HomePageState extends State<HomePage> {
   Widget _buildNearbyArea(String iconPath, String areaName, String feederName) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          Container(
-            height: 80,
-            width: 80,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.grey[100],
-              borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: RiveAppTheme.cardBackground,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: const Color(0xFFE3E3E8)),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x12000000),
+              blurRadius: 20,
+              offset: Offset(0, 8),
             ),
-            child: Image.asset(iconPath),
-          ),
-          const SizedBox(width: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                areaName,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              height: 64,
+              width: 64,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F4F7),
+                borderRadius: BorderRadius.circular(14),
               ),
-              const SizedBox(height: 5),
-              Row(
+              child: Image.asset(iconPath),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.transform,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(width: 5),
                   Text(
-                    feederName,
+                    areaName,
                     style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.3,
                     ),
+                  ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.bolt_rounded,
+                        size: 16,
+                        color: Color(0xFF6E6E73),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          feederName,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF6E6E73),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          const Spacer(),
-          const Icon(Icons.arrow_forward_ios_rounded),
-        ],
+            ),
+            Container(
+              height: 28,
+              width: 28,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF2F2F7),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: Color(0xFF8E8E93),
+                size: 14,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _IconContainer extends StatelessWidget {
+  const _IconContainer({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Ink(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.white.withOpacity(0.95),
+          border: Border.all(color: const Color(0xFFE5E5EA)),
+        ),
+        child: Icon(icon, size: 20, color: const Color(0xFF1D1D1F)),
       ),
     );
   }
@@ -475,11 +572,26 @@ class GoogleUserIcon extends StatelessWidget {
     return Container(
       width: 40,
       height: 40,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
+        gradient: const LinearGradient(
+          colors: [Color(0xFFEEF4FF), Color(0xFFDCEBFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: const Color(0xFFE5E5EA)),
       ),
-      child: const Icon(Icons.settings,
-          color: Color.fromARGB(255, 36, 34, 34), size: 20),
+      child: const Center(
+        child: Text(
+          'LO',
+          style: TextStyle(
+            color: Color(0xFF2C2C2E),
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ),
     );
   }
 }
