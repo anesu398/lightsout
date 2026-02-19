@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:lightsout/pages/theme.dart';
 
 class MyArea extends StatefulWidget {
   final String area;
-  final List<int> powerOffTimes; // List of hours when power is off
+  final List<int> powerOffTimes;
   final String feeder;
   final int stage;
-  final Gradient gradient; // Updated to accept Gradient instead of Color
+  final Gradient gradient;
 
   const MyArea({
     Key? key,
@@ -14,15 +16,15 @@ class MyArea extends StatefulWidget {
     required this.powerOffTimes,
     required this.feeder,
     required this.stage,
-    required this.gradient, // Updated to accept Gradient
+    required this.gradient,
   }) : super(key: key);
 
   @override
-  _MyAreaState createState() => _MyAreaState();
+  State<MyArea> createState() => _MyAreaState();
 }
 
 class _MyAreaState extends State<MyArea> {
-  late List<bool> _powerStatus; // Power status for each hour in a day
+  late List<bool> _powerStatus;
   late Timer _timer;
 
   @override
@@ -39,114 +41,209 @@ class _MyAreaState extends State<MyArea> {
   }
 
   void _initializePowerStatus() {
-    _powerStatus = List.filled(24, true); // Initialize all hours with power on
-    _updatePowerStatus(); // Initial update based on current time
+    _powerStatus = List.filled(24, true);
+    _updatePowerStatus();
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
+    _timer = Timer.periodic(const Duration(minutes: 1), (_) {
       _updatePowerStatus();
     });
   }
 
   void _updatePowerStatus() {
-    final now = DateTime.now();
     setState(() {
-      // Update power status based on current time and power off times
       for (int i = 0; i < 24; i++) {
         _powerStatus[i] = !widget.powerOffTimes.contains(i);
       }
     });
   }
 
+  String _nextOutageLabel() {
+    final nowHour = DateTime.now().hour;
+    int? next;
+
+    for (final hour in widget.powerOffTimes) {
+      if (hour >= nowHour) {
+        next = hour;
+        break;
+      }
+    }
+
+    next ??= widget.powerOffTimes.isNotEmpty ? widget.powerOffTimes.first + 24 : null;
+
+    if (next == null) {
+      return 'No outage slots';
+    }
+
+    final diff = next - nowHour;
+    if (diff <= 0) {
+      return 'Outage in progress';
+    }
+    return 'Next outage in ${diff}h';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: SizedBox(
-        width: 300, // Fixed width for the box
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: widget.gradient, // Use gradient instead of color
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.area,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Image.asset(
-                    'lib/icons/byo.png',
-                    height: 50,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: 30,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: List.generate(12, (index) {
-                      return Container(
-                        width: 13,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color:
-                              _powerStatus[index] ? Colors.green : Colors.red,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        margin: const EdgeInsets.symmetric(horizontal: 1),
-                      );
-                    }),
-                  ),
+    return Semantics(
+      label: '${widget.area}, feeder ${widget.feeder}, stage ${widget.stage}',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 25),
+        child: SizedBox(
+          width: 300,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: widget.gradient,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x26000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 12),
                 ),
+              ],
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0x4DFFFFFF)),
               ),
-              const SizedBox(height: 10),
-              Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.asset(
-                        'lib/icons/transformers.png',
-                        height: 30,
+                      Expanded(
+                        child: Text(
+                          widget.area,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.4,
+                          ),
+                        ),
                       ),
-                      Text(
-                        widget.feeder,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Image.asset(
+                          'lib/icons/byo.png',
+                          height: 28,
                         ),
                       ),
                     ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  const SizedBox(height: 10),
+                  Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(4),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.16),
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: const Text(
+                          'Live',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _nextOutageLabel(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.16),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(12, (index) {
+                        return Container(
+                          width: 14,
+                          height: 8,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: _powerStatus[index]
+                                ? const Color(0xFFD3FFEC)
+                                : const Color(0xFFFFD8DE),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.16),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Image.asset(
+                                'lib/icons/transformers.png',
+                                height: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                widget.feeder,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: _getStageColor(widget.stage),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(
                           'Stage ${widget.stage}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -154,7 +251,7 @@ class _MyAreaState extends State<MyArea> {
                   ),
                 ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -164,13 +261,13 @@ class _MyAreaState extends State<MyArea> {
   Color _getStageColor(int stage) {
     switch (stage) {
       case 1:
-        return Colors.green;
+        return RiveAppTheme.success;
       case 2:
-        return Colors.orange;
+        return RiveAppTheme.warning;
       case 3:
-        return Colors.red;
+        return RiveAppTheme.danger;
       default:
-        return Colors.grey;
+        return RiveAppTheme.textSecondary;
     }
   }
 }
