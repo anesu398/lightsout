@@ -213,6 +213,13 @@ class _MyAreaState extends State<MyArea> {
         return RiveAppTheme.danger;
       default:
         return RiveAppTheme.textSecondary;
+        return const Color(0xFF34C759);
+      case 2:
+        return const Color(0xFFFF9F0A);
+      case 3:
+        return const Color(0xFFFF453A);
+      default:
+        return const Color(0xFF8E8E93);
     }
   }
 }
