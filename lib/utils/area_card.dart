@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lightsout/pages/theme.dart';
 
 class MyArea extends StatefulWidget {
   final String area;
@@ -205,6 +206,13 @@ class _MyAreaState extends State<MyArea> {
   Color _getStageColor(int stage) {
     switch (stage) {
       case 1:
+        return RiveAppTheme.success;
+      case 2:
+        return RiveAppTheme.warning;
+      case 3:
+        return RiveAppTheme.danger;
+      default:
+        return RiveAppTheme.textSecondary;
         return const Color(0xFF34C759);
       case 2:
         return const Color(0xFFFF9F0A);
