@@ -7,7 +7,7 @@ import 'package:lightsout/utils/area_card.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,8 +16,48 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _homePageController = PageController();
   final _tabPageController = PageController();
+
   int _currentTabIndex = 0;
   bool _isSidebarOpen = false;
+
+  final List<_AreaCardData> _areas = const [
+    _AreaCardData(
+      area: 'Khumalo',
+      feeder: 'Ilanda Feeder',
+      stage: 2,
+      powerOffTimes: [1, 2, 3, 4, 5],
+      gradient: LinearGradient(
+        colors: [Color(0xFF99B8FF), Color(0xFF4477ED)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.3, 1.0],
+      ),
+    ),
+    _AreaCardData(
+      area: 'Bulawayo PolyTechnic',
+      feeder: 'Park Road Feeder',
+      stage: 1,
+      powerOffTimes: [3, 4, 5, 6],
+      gradient: LinearGradient(
+        colors: [Color(0xFF8DE4B4), Color(0xFF1C8ADB)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.2, 1.0],
+      ),
+    ),
+    _AreaCardData(
+      area: 'Ascot',
+      feeder: 'Khumalo Feeder',
+      stage: 3,
+      powerOffTimes: [8, 9, 10, 11, 14, 15],
+      gradient: LinearGradient(
+        colors: [Color(0xFFFB9A9F), Color(0xFF3556C9)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.1, 1.0],
+      ),
+    ),
+  ];
 
   @override
   void dispose() {
@@ -26,17 +66,16 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  void _navigateToDetails(String area, String feeder, int stage,
-      LinearGradient gradient, List<int> powerOffTimes) {
+  void _navigateToDetails(_AreaCardData area) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => DetailPage(
-          area: area,
-          feeder: feeder,
-          stage: stage,
-          gradient: gradient,
-          powerOffTimes: powerOffTimes,
+          area: area.area,
+          feeder: area.feeder,
+          stage: area.stage,
+          gradient: area.gradient,
+          powerOffTimes: area.powerOffTimes,
         ),
       ),
     );
@@ -54,9 +93,7 @@ class _HomePageState extends State<HomePage> {
       if (newIndex == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => FaultReportPage(),
-          ),
+          MaterialPageRoute(builder: (context) => FaultReportPage()),
         );
       } else {
         _tabPageController.animateToPage(
@@ -89,212 +126,64 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          // Main content
           Scaffold(
             backgroundColor: Colors.transparent,
             body: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // App bar
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 25.0, vertical: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Row(
-                          children: [
-                            Text(
-                              'Lights',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.8,
-                                color: Color(0xFF1D1D1F),
-                              ),
-                            ),
-                            SizedBox(width: 6),
-                            Text(
-                              'Out',
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: -0.8,
-                                color: Color(0xFF6E6E73),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            _IconContainer(
-                              icon: _isSidebarOpen ? Icons.close : Icons.menu,
-                              onTap: _toggleSidebar,
-                            ),
-                            const SizedBox(width: 10),
-                            const GoogleUserIcon(),
-                          ],
-                        ),
-                      ],
-                    ),
+                  _HomeHeader(
+                    isSidebarOpen: _isSidebarOpen,
+                    onMenuTap: _toggleSidebar,
                   ),
-                  const SizedBox(height: 10),
-
-                  // My Areas
+                  const SizedBox(height: AppSpacing.sm),
                   Expanded(
                     child: PageView(
                       controller: _homePageController,
                       onPageChanged: (int page) {
-                        setState(() {
-                          _currentTabIndex = page;
-                        });
+                        setState(() => _currentTabIndex = page);
                       },
                       children: [
-                        // Home page content
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 25.0),
-                              child: Text(
-                                'My Area(s)',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.5,
-                                  color: Color(0xFF1D1D1F),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 14),
+                            const _SectionTitle('My Area(s)'),
+                            const SizedBox(height: AppSpacing.md),
                             Expanded(
-                              child: PageView(
+                              child: PageView.builder(
                                 controller: _tabPageController,
+                                itemCount: _areas.length,
                                 onPageChanged: (int page) {
-                                  setState(() {
-                                    _currentTabIndex = page;
-                                  });
+                                  setState(() => _currentTabIndex = page);
                                 },
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => _navigateToDetails(
-                                      'Khumalo',
-                                      'Ilanda Feeder',
-                                      2,
-                                      const LinearGradient(
-                                        colors: [
-                                          Color(0xFF99B8FF),
-                                          Color(0xFF4477ED),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        stops: [0.3, 1.0],
-                                      ),
-                                      [1, 2, 3, 4, 5],
-                                    ),
+                                itemBuilder: (context, index) {
+                                  final area = _areas[index];
+                                  return GestureDetector(
+                                    onTap: () => _navigateToDetails(area),
                                     child: SizedBox(
                                       width: MediaQuery.of(context).size.width,
-                                      child: const MyArea(
-                                        area: 'Khumalo',
-                                        feeder: 'Ilanda Feeder',
-                                        stage: 2,
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFF99B8FF),
-                                            Color(0xFF4477ED),
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          stops: [0.3, 1.0],
-                                        ),
-                                        powerOffTimes: [1, 2, 3, 4, 5],
+                                      child: MyArea(
+                                        area: area.area,
+                                        feeder: area.feeder,
+                                        stage: area.stage,
+                                        gradient: area.gradient,
+                                        powerOffTimes: area.powerOffTimes,
                                       ),
                                     ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => _navigateToDetails(
-                                      'Bulawayo PolyTechnic',
-                                      'Park Road Feeder',
-                                      1,
-                                      const LinearGradient(
-                                        colors: [
-                                          Color(0xFF8DE4B4),
-                                          Color(0xFF1C8ADB),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        stops: [0.2, 1.0],
-                                      ),
-                                      [3, 4, 5, 6],
-                                    ),
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: const MyArea(
-                                        area: 'Bulawayo PolyTechnic',
-                                        feeder: 'Park Road Feeder',
-                                        stage: 1,
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFF8DE4B4),
-                                            Color(0xFF1C8ADB),
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          stops: [0.2, 1.0],
-                                        ),
-                                        powerOffTimes: [3, 4, 5, 6],
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    onTap: () => _navigateToDetails(
-                                      'Ascot',
-                                      'Khumalo Feeder',
-                                      3,
-                                      const LinearGradient(
-                                        colors: [
-                                          Color(0xFFFB9A9F),
-                                          Color(0xFF3556C9),
-                                        ],
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        stops: [0.1, 1.0],
-                                      ),
-                                      [8, 9, 10, 11, 14, 15],
-                                    ),
-                                    child: SizedBox(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: const MyArea(
-                                        area: 'Ascot',
-                                        feeder: 'Khumalo Feeder',
-                                        stage: 3,
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Color(0xFFFB9A9F),
-                                            Color(0xFF3556C9),
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          stops: [0.1, 1.0],
-                                        ),
-                                        powerOffTimes: [8, 9, 10, 11, 14, 15],
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: AppSpacing.lg),
                             Align(
                               alignment: Alignment.center,
                               child: SmoothPageIndicator(
                                 controller: _tabPageController,
-                                count: 3,
+                                count: _areas.length,
                                 effect: const ExpandingDotsEffect(
-                                  dotHeight: 7.0,
-                                  dotWidth: 7.0,
-                                  activeDotColor: Color(0xFF1D1D1F),
+                                  dotHeight: 7,
+                                  dotWidth: 7,
+                                  activeDotColor: RiveAppTheme.textPrimary,
                                   dotColor: Color(0xFFB8BEC8),
                                 ),
                               ),
@@ -304,129 +193,123 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-
-                  // Nearby Areas with AnimatedSwitcher
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 25.0),
-                        child: Text(
-                          'Nearby Areas',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                            color: Color(0xFF1D1D1F),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                          return FadeTransition(
-                            opacity: animation,
-                            child: ScaleTransition(
-                              scale: Tween<double>(begin: 0.98, end: 1)
-                                  .animate(animation),
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: Column(
-                          key: ValueKey<int>(_currentTabIndex),
-                          children: [
-                            Padding(
-                              key: ValueKey<int>(_currentTabIndex),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 25.0),
-                              child: _buildNearbyArea(
-                                'lib/icons/byo.png',
-                                _getNearbyAreaName(_currentTabIndex),
-                                _getNearbyFeederName(_currentTabIndex),
-                              ),
-                            ),
-                            if (_currentTabIndex + 1 < 3)
-                              Padding(
-                                key: ValueKey<int>(_currentTabIndex + 1),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 25.0),
-                                child: _buildNearbyArea(
-                                  'lib/icons/byo.png',
-                                  _getNearbyAreaName(_currentTabIndex + 1),
-                                  _getNearbyFeederName(_currentTabIndex + 1),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _NearbyAreasSection(currentTabIndex: _currentTabIndex),
                 ],
               ),
             ),
           ),
-
-          // Custom sidebar
           if (_isSidebarOpen)
-            Container(
-              width: MediaQuery.of(context).size.width * 0.82,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.92),
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
-                ),
-                border: Border.all(color: const Color(0xFFE5E5EA)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 50),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'Menu',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.8,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ListTile(
-                    leading: const Icon(Icons.home_rounded),
-                    title: const Text('Home'),
-                    onTap: () {
-                      setState(() {
-                        _isSidebarOpen = false;
-                        _homePageController.jumpToPage(0);
-                      });
-                    },
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.settings_rounded),
-                    title: const Text('Settings'),
-                    onTap: () {
-                      setState(() {
-                        _isSidebarOpen = false;
-                      });
-                    },
-                  ),
-                ],
-              ),
+            _SidebarSheet(
+              onHomeTap: () {
+                setState(() {
+                  _isSidebarOpen = false;
+                  _homePageController.jumpToPage(0);
+                });
+              },
+              onSettingsTap: () {
+                setState(() => _isSidebarOpen = false);
+              },
             ),
         ],
       ),
-      bottomNavigationBar: CustomTabBar(
-        onTabChange: _onTabChange,
+      bottomNavigationBar: CustomTabBar(onTabChange: _onTabChange),
+    );
+  }
+}
+
+class _AreaCardData {
+  const _AreaCardData({
+    required this.area,
+    required this.feeder,
+    required this.stage,
+    required this.powerOffTimes,
+    required this.gradient,
+  });
+
+  final String area;
+  final String feeder;
+  final int stage;
+  final List<int> powerOffTimes;
+  final LinearGradient gradient;
+}
+
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({
+    required this.isSidebarOpen,
+    required this.onMenuTap,
+  });
+
+  final bool isSidebarOpen;
+  final VoidCallback onMenuTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.lg,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            children: [
+              Text(
+                'Lights',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.8,
+                  color: RiveAppTheme.textPrimary,
+                ),
+              ),
+              SizedBox(width: AppSpacing.xs),
+              Text(
+                'Out',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: -0.8,
+                  color: RiveAppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              _IconContainer(
+                icon: isSidebarOpen ? Icons.close : Icons.menu,
+                onTap: onMenuTap,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              const GoogleUserIcon(),
+            ],
+          ),
+        ],
       ),
     );
   }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+    );
+  }
+}
+
+class _NearbyAreasSection extends StatelessWidget {
+  const _NearbyAreasSection({required this.currentTabIndex});
+
+  final int currentTabIndex;
 
   String _getNearbyAreaName(int index) {
     switch (index % 3) {
@@ -434,10 +317,8 @@ class _HomePageState extends State<HomePage> {
         return 'Woodlands';
       case 1:
         return 'Parklands';
-      case 2:
-        return 'ZITF';
       default:
-        return '';
+        return 'ZITF';
     }
   }
 
@@ -447,22 +328,81 @@ class _HomePageState extends State<HomePage> {
         return 'City of Bulawayo Main Feeder';
       case 1:
         return 'Khumalo Main Feeder';
-      case 2:
-        return '33Kv feeder';
       default:
-        return '';
+        return '33Kv feeder';
     }
   }
 
-  Widget _buildNearbyArea(String iconPath, String areaName, String feederName) {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionTitle('Nearby Areas'),
+        const SizedBox(height: AppSpacing.md),
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: Tween<double>(begin: 0.98, end: 1).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: Column(
+            key: ValueKey<int>(currentTabIndex),
+            children: [
+              Padding(
+                key: ValueKey<int>(currentTabIndex),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                child: _NearbyAreaTile(
+                  iconPath: 'lib/icons/byo.png',
+                  areaName: _getNearbyAreaName(currentTabIndex),
+                  feederName: _getNearbyFeederName(currentTabIndex),
+                ),
+              ),
+              if (currentTabIndex + 1 < 3)
+                Padding(
+                  key: ValueKey<int>(currentTabIndex + 1),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  child: _NearbyAreaTile(
+                    iconPath: 'lib/icons/byo.png',
+                    areaName: _getNearbyAreaName(currentTabIndex + 1),
+                    feederName: _getNearbyFeederName(currentTabIndex + 1),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NearbyAreaTile extends StatelessWidget {
+  const _NearbyAreaTile({
+    required this.iconPath,
+    required this.areaName,
+    required this.feederName,
+  });
+
+  final String iconPath;
+  final String areaName;
+  final String feederName;
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: RiveAppTheme.cardBackground,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: const Color(0xFFE3E3E8)),
+          borderRadius: BorderRadius.circular(AppRadii.lg),
+          border: Border.all(color: RiveAppTheme.borderSubtle),
           boxShadow: const [
             BoxShadow(
               color: Color(0x12000000),
@@ -479,39 +419,29 @@ class _HomePageState extends State<HomePage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppRadii.md),
               ),
               child: Image.asset(iconPath),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    areaName,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
+                  Text(areaName, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 5),
                   Row(
                     children: [
                       const Icon(
                         Icons.bolt_rounded,
                         size: 16,
-                        color: Color(0xFF6E6E73),
+                        color: RiveAppTheme.textSecondary,
                       ),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           feederName,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF6E6E73),
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     ],
@@ -523,17 +453,68 @@ class _HomePageState extends State<HomePage> {
               height: 28,
               width: 28,
               decoration: BoxDecoration(
-                color: const Color(0xFFF2F2F7),
-                borderRadius: BorderRadius.circular(999),
+                color: RiveAppTheme.surfaceMuted,
+                borderRadius: BorderRadius.circular(AppRadii.pill),
               ),
               child: const Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Color(0xFF8E8E93),
+                color: RiveAppTheme.textSecondary,
                 size: 14,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SidebarSheet extends StatelessWidget {
+  const _SidebarSheet({required this.onHomeTap, required this.onSettingsTap});
+
+  final VoidCallback onHomeTap;
+  final VoidCallback onSettingsTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.82,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.92),
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        border: Border.all(color: RiveAppTheme.borderSubtle),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 50),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Menu',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.8,
+                color: RiveAppTheme.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          ListTile(
+            leading: const Icon(Icons.home_rounded),
+            title: const Text('Home'),
+            onTap: onHomeTap,
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_rounded),
+            title: const Text('Settings'),
+            onTap: onSettingsTap,
+          ),
+        ],
       ),
     );
   }
@@ -549,23 +530,23 @@ class _IconContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(AppRadii.md),
       child: Ink(
         height: 40,
         width: 40,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadii.md),
           color: Colors.white.withOpacity(0.95),
-          border: Border.all(color: const Color(0xFFE5E5EA)),
+          border: Border.all(color: RiveAppTheme.borderSubtle),
         ),
-        child: Icon(icon, size: 20, color: const Color(0xFF1D1D1F)),
+        child: Icon(icon, size: 20, color: RiveAppTheme.textPrimary),
       ),
     );
   }
 }
 
 class GoogleUserIcon extends StatelessWidget {
-  const GoogleUserIcon({Key? key}) : super(key: key);
+  const GoogleUserIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -579,7 +560,7 @@ class GoogleUserIcon extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        border: Border.all(color: const Color(0xFFE5E5EA)),
+        border: Border.all(color: RiveAppTheme.borderSubtle),
       ),
       child: const Center(
         child: Text(
