@@ -19,6 +19,47 @@ class _HomePageState extends State<HomePage> {
 
   int _currentTabIndex = 0;
   bool _isSidebarOpen = false;
+  bool _alertsEnabled = true;
+  bool _darkAppearance = false;
+
+  final List<_AreaCardData> _areas = const [
+    _AreaCardData(
+      area: 'Khumalo',
+      feeder: 'Ilanda Feeder',
+      stage: 2,
+      powerOffTimes: [1, 2, 3, 4, 5],
+      gradient: LinearGradient(
+        colors: [Color(0xFF99B8FF), Color(0xFF4477ED)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.3, 1.0],
+      ),
+    ),
+    _AreaCardData(
+      area: 'Bulawayo PolyTechnic',
+      feeder: 'Park Road Feeder',
+      stage: 1,
+      powerOffTimes: [3, 4, 5, 6],
+      gradient: LinearGradient(
+        colors: [Color(0xFF8DE4B4), Color(0xFF1C8ADB)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.2, 1.0],
+      ),
+    ),
+    _AreaCardData(
+      area: 'Ascot',
+      feeder: 'Khumalo Feeder',
+      stage: 3,
+      powerOffTimes: [8, 9, 10, 11, 14, 15],
+      gradient: LinearGradient(
+        colors: [Color(0xFFFB9A9F), Color(0xFF3556C9)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        stops: [0.1, 1.0],
+      ),
+    ),
+  ];
 
   final List<_AreaCardData> _areas = const [
     _AreaCardData(
@@ -81,12 +122,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _toggleSidebar() {
-    setState(() {
-      _isSidebarOpen = !_isSidebarOpen;
-    });
-  }
-
   void _onTabChange(int newIndex) {
     setState(() {
       _currentTabIndex = newIndex;
@@ -107,8 +142,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final bg = _darkAppearance ? const Color(0xFF111214) : RiveAppTheme.background;
+
     return Scaffold(
-      backgroundColor: RiveAppTheme.background,
+      backgroundColor: bg,
       body: Stack(
         children: [
           Positioned.fill(
@@ -117,6 +154,13 @@ class _HomePageState extends State<HomePage> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
+                  colors: _darkAppearance
+                      ? [const Color(0xFF1B1D22), const Color(0xFF111214)]
+                      : [const Color(0xFFEAF3FF), RiveAppTheme.background, Colors.white],
+                ),
+              ),
+            ),
+          ),
                   colors: [
                     const Color(0xFFEAF3FF),
                     RiveAppTheme.background,
@@ -135,6 +179,30 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   _HomeHeader(
                     isSidebarOpen: _isSidebarOpen,
+                    onMenuTap: () => setState(() => _isSidebarOpen = !_isSidebarOpen),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _SectionTitle('My Area(s)'),
+                  const SizedBox(height: AppSpacing.md),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _tabPageController,
+                      itemCount: _areas.length,
+                      onPageChanged: (int page) {
+                        setState(() => _currentTabIndex = page);
+                      },
+                      itemBuilder: (context, index) {
+                        final area = _areas[index];
+                        return GestureDetector(
+                          onTap: () => _navigateToDetails(area),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: MyArea(
+                              area: area.area,
+                              feeder: area.feeder,
+                              stage: area.stage,
+                              gradient: area.gradient,
+                              powerOffTimes: area.powerOffTimes,
                     onMenuTap: _toggleSidebar,
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -357,11 +425,22 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        );
+                      },
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Align(
+                    alignment: Alignment.center,
+                    child: SmoothPageIndicator(
+                      controller: _tabPageController,
+                      count: _areas.length,
+                      effect: const ExpandingDotsEffect(
+                        dotHeight: 7,
+                        dotWidth: 7,
+                        activeDotColor: RiveAppTheme.textPrimary,
+                        dotColor: Color(0xFFB8BEC8),
                   const SizedBox(height: AppSpacing.sm),
                   _NearbyAreasSection(currentTabIndex: _currentTabIndex),
                   const SizedBox(height: 12),
@@ -423,20 +502,117 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _NearbyAreasSection(currentTabIndex: _currentTabIndex),
                 ],
               ),
             ),
           ),
           if (_isSidebarOpen)
             _SidebarSheet(
+              alertsEnabled: _alertsEnabled,
+              darkAppearance: _darkAppearance,
+              onAlertsChanged: (value) => setState(() => _alertsEnabled = value),
+              onDarkChanged: (value) => setState(() => _darkAppearance = value),
               onHomeTap: () {
                 setState(() {
                   _isSidebarOpen = false;
                   _homePageController.jumpToPage(0);
                 });
               },
+              onCloseTap: () => setState(() => _isSidebarOpen = false),
+            ),
+        ],
+      ),
+      bottomNavigationBar: CustomTabBar(onTabChange: _onTabChange),
+    );
+  }
+}
+
+class _AreaCardData {
+  const _AreaCardData({
+    required this.area,
+    required this.feeder,
+    required this.stage,
+    required this.powerOffTimes,
+    required this.gradient,
+  });
+
+  final String area;
+  final String feeder;
+  final int stage;
+  final List<int> powerOffTimes;
+  final LinearGradient gradient;
+}
+
+class _HomeHeader extends StatelessWidget {
+  const _HomeHeader({required this.isSidebarOpen, required this.onMenuTap});
+
+  final bool isSidebarOpen;
+  final VoidCallback onMenuTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            children: [
+              Text(
+                'Lights',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.8,
+                  color: RiveAppTheme.textPrimary,
+                ),
+              ),
+              SizedBox(width: AppSpacing.xs),
+              Text(
+                'Out',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: -0.8,
+                  color: RiveAppTheme.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              _IconContainer(
+                icon: isSidebarOpen ? Icons.close : Icons.menu,
+                onTap: onMenuTap,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              const GoogleUserIcon(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionTitle extends StatelessWidget {
+  const _SectionTitle(this.title);
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+      child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+    );
+  }
+}
+
               onSettingsTap: () {
                 setState(() => _isSidebarOpen = false);
               },
@@ -627,6 +803,188 @@ class _NearbyAreasSection extends StatelessWidget {
                   areaName: _getNearbyAreaName(currentTabIndex),
                   feederName: _getNearbyFeederName(currentTabIndex),
                 ),
+              ),
+              if (currentTabIndex + 1 < 3)
+                Padding(
+                  key: ValueKey<int>(currentTabIndex + 1),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                  child: _NearbyAreaTile(
+                    iconPath: 'lib/icons/byo.png',
+                    areaName: _getNearbyAreaName(currentTabIndex + 1),
+                    feederName: _getNearbyFeederName(currentTabIndex + 1),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _NearbyAreaTile extends StatelessWidget {
+  const _NearbyAreaTile({
+    required this.iconPath,
+    required this.areaName,
+    required this.feederName,
+  });
+
+  final String iconPath;
+  final String areaName;
+  final String feederName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: '$areaName on $feederName',
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: RiveAppTheme.cardBackground,
+            borderRadius: BorderRadius.circular(AppRadii.lg),
+            border: Border.all(color: RiveAppTheme.borderSubtle),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x12000000),
+                blurRadius: 20,
+                offset: Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                height: 64,
+                width: 64,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF2F4F7),
+                  borderRadius: BorderRadius.circular(AppRadii.md),
+                ),
+                child: Image.asset(iconPath),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(areaName, style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.bolt_rounded,
+                          size: 16,
+                          color: RiveAppTheme.textSecondary,
+                        ),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            feederName,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 28,
+                width: 28,
+                decoration: BoxDecoration(
+                  color: RiveAppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(AppRadii.pill),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: RiveAppTheme.textSecondary,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SidebarSheet extends StatelessWidget {
+  const _SidebarSheet({
+    required this.alertsEnabled,
+    required this.darkAppearance,
+    required this.onAlertsChanged,
+    required this.onDarkChanged,
+    required this.onHomeTap,
+    required this.onCloseTap,
+  });
+
+  final bool alertsEnabled;
+  final bool darkAppearance;
+  final ValueChanged<bool> onAlertsChanged;
+  final ValueChanged<bool> onDarkChanged;
+  final VoidCallback onHomeTap;
+  final VoidCallback onCloseTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.84,
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(28),
+          bottomRight: Radius.circular(28),
+        ),
+        border: Border.all(color: RiveAppTheme.borderSubtle),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+        children: [
+          Row(
+            children: [
+              const GoogleUserIcon(),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('LightsOut User', style: TextStyle(fontWeight: FontWeight.w700)),
+                    SizedBox(height: 2),
+                    Text('3 saved areas', style: TextStyle(color: RiveAppTheme.textSecondary)),
+                  ],
+                ),
+              ),
+              IconButton(onPressed: onCloseTap, icon: const Icon(Icons.close_rounded)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.home_rounded),
+            title: const Text('Home'),
+            onTap: onHomeTap,
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.notifications_active_outlined),
+            value: alertsEnabled,
+            title: const Text('Outage alerts'),
+            subtitle: const Text('Get reminders before outage windows'),
+            onChanged: onAlertsChanged,
+          ),
+          SwitchListTile.adaptive(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.dark_mode_outlined),
+            value: darkAppearance,
+            title: const Text('Dark appearance'),
+            subtitle: const Text('Preview low-light interface mode'),
+            onChanged: onDarkChanged,
+          ),
               ),
               if (currentTabIndex + 1 < 3)
                 Padding(
@@ -869,6 +1227,31 @@ class _IconContainer extends StatelessWidget {
           border: Border.all(color: const Color(0xFFE5E5EA)),
         ),
         child: Icon(icon, size: 20, color: const Color(0xFF1D1D1F)),
+      ),
+    );
+  }
+}
+
+class _IconContainer extends StatelessWidget {
+  const _IconContainer({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadii.md),
+      child: Ink(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadii.md),
+          color: Colors.white.withOpacity(0.95),
+          border: Border.all(color: RiveAppTheme.borderSubtle),
+        ),
+        child: Icon(icon, size: 20, color: RiveAppTheme.textPrimary),
       ),
     );
   }
